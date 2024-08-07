@@ -1,0 +1,17 @@
+{
+  "name": "storage-versioning",
+  "main": "dist/index.js",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts"
+}
