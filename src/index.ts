@@ -73,14 +73,14 @@ export type StorageSignal = {
 //
 //
 
-let signalFactory: () => StorageSignal = () => {
+let signalFactory: (initial: any) => StorageSignal = () => {
   throw new Error('Signal factory not set');
 };
 
 //
 //
 
-export function setSignalFactory(factory: () => StorageSignal) {
+export function setSignalFactory(factory: (initial: any) => StorageSignal) {
   signalFactory = factory;
 }
 
@@ -146,7 +146,7 @@ export function storageItem<T>(
   version?: string | number,
 ): StorageVersioningItem<T> {
   let timeout: any = null;
-  const signal = signalFactory();
+  const signal = signalFactory(null);
 
   //
   //
@@ -238,7 +238,7 @@ export function storageItem<T>(
  * Does not expire the data neither access the localStorage
  */
 export function storageItemTesting<T>(): StorageVersioningItem<T> {
-  const signal = signalFactory();
+  const signal = signalFactory(null);
 
   //
   //

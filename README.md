@@ -52,31 +52,46 @@ group.person.value = { name: 'John Doe', age: 30 }; // Não salva
 Possui o método `setSignalFactory` para configurar o tipo de signal que será usado pela aplicação, podendo variar entre `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
 
 ```ts
-// Must start with null
-
 // Vue
-setSignalFactory(() => ref(null));
+setSignalFactory(ref);
+
+// Preact Signals
+setSignalFactory(signal);
 
 // Solid
-setSignalFactory(() => {
-  const [value, setValue] = createSignal(null);
+setSignalFactory((initial) => {
+  const [value, setValue] = createSignal(initial);
 
   return {
     get value() {
       return value();
     },
-    set value(newV) {
-      setValue(newV);
+    set value(newValue) {
+      setValue(newValue);
     },
   };
 });
 
-// Preact Signals
-setSignalFactory(() => signal(null));
-
 // Angular Signals
-setSignalFactory(() => signal(null));
+setSignalFactory((initial) => {
+  const _signal = signal(initial);
+
+  return {
+    get value() {
+      return value();
+    },
+    set value(newValue) {
+      _signal.set(newValue);
+    },
+  };
+});
 ```
+
+### Svelte e React
+
+Para ter reatividade pode-se usar algo como [Preact Signals in Svelte](https://svelte.dev/repl/3da10091dda341a6a7b9859450e20e9b?version=3.52.0)
+
+E para o React [@preact/signals-react](https://www.npmjs.com/package/@preact/signals-react)
 
 ### Acessando a reatividade
 
