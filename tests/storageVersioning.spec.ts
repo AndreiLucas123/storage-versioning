@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { setSignalFactory, storageGroup, storageVersioning } from '../src';
 
 //
@@ -26,6 +26,11 @@ test('Must show Data 1', async ({ page }) => {
 
 test('storageVersioning must save and load successfully', async ({ page }) => {
   await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
 
   //
   // Must start with null
@@ -65,6 +70,11 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
 
 test('When change version, must return null', async ({ page }) => {
   await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
 
   //
   // Must save with version 1
@@ -116,6 +126,11 @@ test('When change version, must return null', async ({ page }) => {
 test('Must expirate', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
+
   //
   // Must start with null
 
@@ -150,16 +165,37 @@ test('Must expirate', async ({ page }) => {
 //
 //
 
+async function setDocumentTitleSignal(page: Page) {
+  await page.evaluate(() => {
+    __setSignalFactory(() => {
+      document.title = 'null';
+      return {
+        get value() {
+          return document.title;
+        },
+
+        set value(newValue) {
+          document.title = newValue;
+        },
+      };
+    });
+  });
+}
+
+//
+//
+
 test('Expiration must notify', async ({ page }) => {
   await page.goto('http://localhost:5173/');
+
+  // Set the signal to change the document title
+  await setDocumentTitleSignal(page);
 
   //
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, (title) => {
-      document.title = title + '';
-    });
+    const storage = __storageVersioning('key1', 1);
 
     const exp = new Date();
     exp.setSeconds(exp.getSeconds() + 1);
@@ -187,6 +223,9 @@ test('Expiration must notify', async ({ page }) => {
 test('Expiration must notify without save', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
+  // Set the signal to change the document title
+  await setDocumentTitleSignal(page);
+
   //
   // Change the localStorage manually
 
@@ -208,10 +247,7 @@ test('Expiration must notify without save', async ({ page }) => {
   // Must expirate and notify without calling save method
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, (title) => {
-      document.title = title + '';
-    });
-
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 
@@ -225,4 +261,41 @@ test('Expiration must notify without save', async ({ page }) => {
   // Will save, and when load must be the same
 
   expect(await page.title()).toBe('null');
+});
+
+//
+//
+
+test('storageGroup must load all storages', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
+
+  //
+  // Must start with null
+
+  const result1 = await page.evaluate(() => {
+    const group = __storageGroup({
+      key1: __storageVersioning('key1', 1),
+      key2: __storageVersioning('key2', 1),
+    });
+
+    group.key1.save('John');
+    group.key2.save('Doe');
+
+    group.load();
+
+    return {
+      key1: group.key1.value,
+      key2: group.key2.value,
+    };
+  });
+
+  expect(result1).toEqual({
+    key1: 'John',
+    key2: 'Doe',
+  });
 });
