@@ -1,4 +1,4 @@
-import { storageVersioning } from '../src';
+import { storageVersioning, setSignalFactory, storageGroup } from '../src';
 import { getDiv } from './getDiv';
 
 //
@@ -6,26 +6,36 @@ import { getDiv } from './getDiv';
 
 localStorage.clear();
 
-(window as any).__storageVersioning = storageVersioning
+(window as any).__setSignalFactory = setSignalFactory;
+(window as any).__storageGroup = storageGroup;
+(window as any).__storageVersioning = storageVersioning;
 
 //
 //
 
 getDiv('div1', (display) => {
-  const storage = storageVersioning('key1', 1, display);
-  storage.setup();
+  setSignalFactory(() => {
+    let value: any = null;
 
-  storage.save({ name: 'John' });
-  display(storage.load());
-});
+    return {
+      get value() {
+        return value;
+      },
+      set value(newValue) {
+        value = newValue;
+        display(value);
+      },
+    };
+  });
 
-//
-//
+  //
+  //
 
-getDiv('div2', (display) => {
-  const storage = storageVersioning('key2', 1, display);
-  storage.setup();
+  const group = storageGroup({
+    key99: storageVersioning('key99', 1),
+  });
+  group.listen();
 
-  storage.save({ name: 'John' });
-  display(storage.load());
+  group.key99.save({ name: 'John', age: 30, rand: Math.random() });
+  group.load();
 });

@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { storageVersioning } from '../src';
+import { setSignalFactory, storageGroup, storageVersioning } from '../src';
 
 //
 //
 
+declare const __setSignalFactory: typeof setSignalFactory;
+declare const __storageGroup: typeof storageGroup;
 declare const __storageVersioning: typeof storageVersioning;
 
 //
@@ -29,7 +31,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 
@@ -39,7 +41,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     storage.save({ name: 'John' });
 
     return storage.load();
@@ -51,7 +53,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Will only load, must be the same
 
   const result3 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 
@@ -68,7 +70,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must save with version 1
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     storage.save({ name: 'John' });
 
     return storage.load();
@@ -80,7 +82,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John with the same version
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 
@@ -90,7 +92,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return null if the version is different
 
   const result3 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 2, () => {});
+    const storage = __storageVersioning('key1', 2);
 
     return storage.load();
   });
@@ -101,7 +103,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John if back to the same version
 
   const result4 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 
@@ -118,7 +120,7 @@ test('Must expirate', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
 
     const exp = new Date();
     exp.setSeconds(exp.getSeconds() + 1);
@@ -138,7 +140,7 @@ test('Must expirate', async ({ page }) => {
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1, () => {});
+    const storage = __storageVersioning('key1', 1);
     return storage.load();
   });
 

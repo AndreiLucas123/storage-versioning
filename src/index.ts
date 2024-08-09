@@ -89,7 +89,7 @@ export function setSignalFactory(factory: () => StorageSignal) {
 
 export function storageGroup<T extends StorageGroup>(
   group: T,
-): T | StorageGroupFunctions {
+): T & StorageGroupFunctions {
   //
   //
 
@@ -119,13 +119,20 @@ export function storageGroup<T extends StorageGroup>(
   //
   //
 
-  (group as any).listen = listen;
-  (group as any).load = load;
+  const functions: StorageGroupFunctions = {
+    listen,
+    load,
+  };
 
   //
   //
 
-  return group;
+  Object.setPrototypeOf(group, functions);
+
+  //
+  //
+
+  return group as any;
 }
 
 /**
