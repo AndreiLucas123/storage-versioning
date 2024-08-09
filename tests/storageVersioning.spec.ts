@@ -1,12 +1,12 @@
 import { test, expect, Page } from '@playwright/test';
-import { setSignalFactory, storageGroup, storageVersioning } from '../src';
+import { setSignalFactory, storageGroup, storageItem } from '../src';
 
 //
 //
 
 declare const __setSignalFactory: typeof setSignalFactory;
 declare const __storageGroup: typeof storageGroup;
-declare const __storageVersioning: typeof storageVersioning;
+declare const __storageItem: typeof storageItem;
 
 //
 //
@@ -36,7 +36,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -46,7 +46,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     storage.save({ name: 'John' });
 
     return storage.load();
@@ -58,7 +58,7 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
   // Will only load, must be the same
 
   const result3 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -80,7 +80,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must save with version 1
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     storage.save({ name: 'John' });
 
     return storage.load();
@@ -92,7 +92,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John with the same version
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -102,7 +102,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return null if the version is different
 
   const result3 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 2);
+    const storage = __storageItem('key1', 2);
 
     return storage.load();
   });
@@ -113,7 +113,7 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John if back to the same version
 
   const result4 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -135,7 +135,7 @@ test('Must expirate', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
 
     const exp = new Date();
     exp.setSeconds(exp.getSeconds() + 1);
@@ -155,7 +155,7 @@ test('Must expirate', async ({ page }) => {
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -195,7 +195,7 @@ test('Expiration must notify', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
 
     const exp = new Date();
     exp.setSeconds(exp.getSeconds() + 1);
@@ -247,7 +247,7 @@ test('Expiration must notify without save', async ({ page }) => {
   // Must expirate and notify without calling save method
 
   const result1 = await page.evaluate(() => {
-    const storage = __storageVersioning('key1', 1);
+    const storage = __storageItem('key1', 1);
     return storage.load();
   });
 
@@ -279,8 +279,8 @@ test('storageGroup must load all storages', async ({ page }) => {
 
   const result1 = await page.evaluate(() => {
     const group = __storageGroup({
-      key1: __storageVersioning('key1', 1),
-      key2: __storageVersioning('key2', 1),
+      key1: __storageItem('key1', 1),
+      key2: __storageItem('key2', 1),
     });
 
     group.key1.save('John');

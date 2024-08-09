@@ -1,7 +1,7 @@
 //
 //
 
-export type StorageVersioning<T> = {
+export type StorageVersioningItem<T> = {
   /**
    * Load the data from the localStorage
    *
@@ -44,7 +44,7 @@ export type StorageVersioningJSON<T> = {
 //
 
 export type StorageGroup = {
-  [key: string]: StorageVersioning<any>;
+  [key: string]: StorageVersioningItem<any>;
 };
 
 //
@@ -139,13 +139,12 @@ export function storageGroup<T extends StorageGroup>(
  * Create a versioned storage
  * @param key the key to store the data
  * @param version the version of the data
- * @param onUpdate callback to call when the data is updated by window storage event
  * @returns a StorageVersioning object
  */
-export function storageVersioning<T>(
+export function storageItem<T>(
   key: string,
   version?: string | number,
-): StorageVersioning<T> {
+): StorageVersioningItem<T> {
   let timeout: any = null;
   const signal = signalFactory();
 
@@ -218,6 +217,44 @@ export function storageVersioning<T>(
     } else {
       localStorage.removeItem(key);
       setValue(null);
+    }
+  }
+
+  //
+  //
+
+  return {
+    load,
+    save,
+    get value() {
+      return signal.value;
+    },
+  };
+}
+
+/**
+ * Same api as storageItem but for testing
+ *
+ * Does not expire the data neither access the localStorage
+ */
+export function storageItemTesting<T>(): StorageVersioningItem<T> {
+  const signal = signalFactory();
+
+  //
+  //
+
+  function load() {
+    return signal.value;
+  }
+
+  //
+  //
+
+  function save(data: T | null) {
+    if (data !== null && data !== undefined) {
+      signal.value = data;
+    } else {
+      signal.value = null;
     }
   }
 

@@ -21,8 +21,8 @@ npm install storage-versioning
 
 ```ts
 const group = storageGroup({
-  person: storageVersioning<typeof data>('person', 1),
-  user: storageVersioning<any>('user'), // Versão é opcional
+  person: storageItem<typeof data>('person', 1),
+  user: storageItem<any>('user'), // Versão é opcional
 });
 ```
 
@@ -83,6 +83,30 @@ setSignalFactory(() => signal(null));
 ```ts
 // Só chamar .value
 group.person.value;
+```
+
+### Testing
+
+Para ambientes de testes automatizados, o recomendado é usar o `storageItemTesting`, a api é a mesma que o `storageItem`, porém ele não acessa o `localStorage` e também os dados não expiram, tendo maior performance nas execuções dos testes
+
+```ts
+let group = storageGroup({
+  person: storageItem<typeof data>('person', 1),
+  user: storageItem<any>('user'),
+});
+
+// Sobreescreve para testes
+if (testing) {
+  group = storageGroup({
+    person: storageItemTesting<typeof data>('person', 1),
+    user: storageItemTesting<any>('user'),
+  });
+}
+
+// Só adiciona o window.addEventListener('storage') se não está em testes
+if (!testing) {
+  group.listen();
+}
 ```
 
 ---

@@ -1,4 +1,4 @@
-import { storageVersioning, setSignalFactory, storageGroup } from '../src';
+import { storageItem, setSignalFactory, storageGroup } from '../src';
 import { getDiv } from './getDiv';
 
 //
@@ -8,7 +8,7 @@ localStorage.clear();
 
 (window as any).__setSignalFactory = setSignalFactory;
 (window as any).__storageGroup = storageGroup;
-(window as any).__storageVersioning = storageVersioning;
+(window as any).__storageItem = storageItem;
 
 //
 //
@@ -32,7 +32,7 @@ getDiv('div1', (display) => {
   //
 
   const group = storageGroup({
-    key99: storageVersioning('key99', 1),
+    key99: storageItem('key99', 1),
   });
   group.listen();
 
