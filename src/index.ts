@@ -35,8 +35,8 @@ export type StorageVersioning<T> = {
 //
 
 export type StorageVersioningJSON<T> = {
-  v: string | number;
   data: T;
+  v?: string | number;
   exp?: number;
 };
 
@@ -144,7 +144,7 @@ export function storageGroup<T extends StorageGroup>(
  */
 export function storageVersioning<T>(
   key: string,
-  version: string | number,
+  version?: string | number,
 ): StorageVersioning<T> {
   let timeout: any = null;
   const signal = signalFactory();

@@ -7,6 +7,7 @@
 - Sincronização automática do `localStorage` entre abas
 - Gerenciamento de versões de armazenamento local
 - Expiração da chave por tempo
+- Reatividade com frameworks como `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
 
 ## Instalação
 
@@ -16,65 +17,85 @@ Você pode instalar o `storage-versioning` via npm:
 npm install storage-versioning
 ```
 
-### Documentação
+### Definindo grupo
 
-## StorageVersioning
+```ts
+const group = storageGroup({
+  person: storageVersioning<typeof data>('person', 1),
+  user: storageVersioning<any>('user'), // Versão é opcional
+});
+```
 
-O `StorageVersioning` é um tipo genérico que define uma interface para gerenciar dados versionados no `localStorage`. Ele fornece métodos para carregar, salvar e configurar um listener para mudanças no `localStorage`.
+### Lendo dados
 
-### Métodos
+```ts
+// Carrega todos os dados do grupo
+group.load();
 
-- **load**: Carrega os dados do `localStorage`. Se os dados estiverem expirados ou a versão for diferente, retorna `null`.
+// Você pode chamar individualmente também
+group.person.load();
+```
 
-  ```ts
-  load: () => T | null;
-  ```
+### Salvando dados
 
-- **save**: Salva os dados no `localStorage` Se uma data de expiração for definida, os dados serão removidos após essa data. Se os dados forem `null`, eles serão removidos.
+```ts
+group.person.save({ name: 'John Doe', age: 30 });
 
-  ```ts
-  save: (data: T | null, exp?: Date) => void;
-  ```
+// Salvando dados com expiração de 1 dia
+group.person.save(data, new Date(Date.now() + 86400000));
 
-- **setup**: Configura um listener para ouvir mudanças no `localStorage` através do evento de armazenamento da janela. Retorna uma função para remover o listener.
-  ```ts
-  setup: () => () => void;
-  ```
+group.person.value = { name: 'John Doe', age: 30 }; // Não salva
+```
 
-## StorageVersioningJSON
+### Configurando reatividade (signals)
 
-O `StorageVersioningJSON` é o tipo de dado salvo no `localStorage`.
+Possui o método `setSignalFactory` para configurar o tipo de signal que será usado pela aplicação, podendo variar entre `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
 
-### Estrutura
+```ts
+// Must start with null
+
+// Vue
+setSignalFactory(() => ref(null));
+
+// Solid
+setSignalFactory(() => {
+  const [value, setValue] = createSignal(null);
+
+  return {
+    get value() {
+      return value();
+    },
+    set value(newV) {
+      setValue(newV);
+    },
+  };
+});
+
+// Preact Signals
+setSignalFactory(() => signal(null));
+
+// Angular Signals
+setSignalFactory(() => signal(null));
+```
+
+### Acessando a reatividade
+
+```ts
+// Só chamar .value
+group.person.value;
+```
+
+---
+
+### Tipo JSON salvo
 
 - **v**: Versão dos dados (string ou número).
 - **data**: Dados a serem armazenados.
 - **exp**: (Opcional) Data de expiração em milissegundos desde a época Unix.
   ```ts
   export type StorageVersioningJSON<T> = {
-    v: string | number;
     data: T;
+    v?: string | number;
     exp?: number;
   };
   ```
-
-### Exemplo de Uso
-
-```ts
-// Definindo a versão e os dados a serem armazenados
-const version = '1.0';
-const data = { name: 'John Doe', age: 30 };
-
-// Implementação do StorageVersioning
-const storage = storageVersioning<typeof data>('person', 1)
-
-// Salvando dados com expiração de 1 dia
-storage.save(data, new Date(Date.now() + 86400000));
-
-// Carregando dados
-const loadedData = storage.load();
-console.log(loadedData);
-
-// Configurando listener
-const removeListener = storage.setup();
-```
