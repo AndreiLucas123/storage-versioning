@@ -1,7 +1,7 @@
 //
 //
 
-export type StorageVersioningItem<T> = {
+export type StorageItem<T> = {
   /**
    * Load the data from the localStorage
    *
@@ -44,7 +44,7 @@ export type StorageVersioningJSON<T> = {
 //
 
 export type StorageGroup = {
-  [key: string]: StorageVersioningItem<any>;
+  [key: string]: StorageItem<any>;
 };
 
 //
@@ -138,13 +138,39 @@ export function storageGroup<T extends StorageGroup>(
 /**
  * Create a versioned storage
  * @param key the key to store the data
+ * @returns a StorageItem object
+ */
+export function storageItem<T>(key: string): StorageItem<T>;
+
+/**
+ * Create a versioned storage
+ * @param key the key to store the data
  * @param version the version of the data
- * @returns a StorageVersioning object
+ * @returns a StorageItem object
  */
 export function storageItem<T>(
   key: string,
-  version?: string | number,
-): StorageVersioningItem<T> {
+  version: string | number,
+): StorageItem<T>;
+
+/**
+ * Create a versioned storage
+ * @param key the key to store the data
+ * @param validation a function to validate the data
+ * @returns a StorageItem object
+ */
+export function storageItem<T>(
+  key: string,
+  validation: (value: any) => T,
+): StorageItem<T>;
+
+//
+//
+
+export function storageItem<T>(
+  key: string,
+  version?: string | number | ((value: any) => T),
+): StorageItem<T> {
   let timeout: any = null;
   const signal = signalFactory(null);
 
@@ -168,8 +194,12 @@ export function storageItem<T>(
 
       const parsed: StorageVersioningJSON<T> = JSON.parse(strItem);
 
-      if (parsed.v !== version) {
-        return setValue(null);
+      if (typeof version === 'function') {
+        parsed.data = version(parsed.data);
+      } else {
+        if (parsed.v !== version) {
+          return setValue(null);
+        }
       }
 
       if (parsed.exp) {
@@ -184,7 +214,7 @@ export function storageItem<T>(
 
       return setValue(parsed.data);
     } catch (error) {
-      console.error('[Error reading localStorage]', error);
+      console.error('[Error loading localStorage]', error);
     }
 
     return setValue(null);
@@ -198,9 +228,14 @@ export function storageItem<T>(
 
     if (data !== null && data !== undefined) {
       const dataToSave: StorageVersioningJSON<T> = {
-        v: version,
         data,
       };
+
+      if (typeof version === 'function') {
+        dataToSave.data = version(data);
+      } else if (version) {
+        dataToSave.v = version;
+      }
 
       if (exp) {
         dataToSave.exp = exp.getTime();
@@ -237,7 +272,7 @@ export function storageItem<T>(
  *
  * Does not expire the data neither access the localStorage
  */
-export function storageItemTesting<T>(): StorageVersioningItem<T> {
+export function storageItemTesting<T>(): StorageItem<T> {
   const signal = signalFactory(null);
 
   //

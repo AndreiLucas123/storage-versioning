@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 import { setSignalFactory, storageGroup, storageItem } from '../src';
+import { int, Schema } from 'schemas-lib';
 
 //
 //
@@ -7,6 +8,7 @@ import { setSignalFactory, storageGroup, storageItem } from '../src';
 declare const __setSignalFactory: typeof setSignalFactory;
 declare const __storageGroup: typeof storageGroup;
 declare const __storageItem: typeof storageItem;
+declare const __schema: Schema<number | null | undefined>;
 
 //
 //
@@ -298,4 +300,115 @@ test('storageGroup must load all storages', async ({ page }) => {
     key1: 'John',
     key2: 'Doe',
   });
+});
+
+//
+//
+
+test('Must validate with schemas-lib when save', async ({ page }) => {
+  const schema = int.catch(1);
+
+  expect(schema.parse(1)).toBe(1);
+  expect(schema.parse('asdasfasdas')).toBe(1);
+
+  //
+  //
+
+  await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
+
+  const result1 = await page.evaluate(() => {
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
+    });
+
+    // When save it will be parsed to 1
+    // because it is not a number
+    // the schema is in main.ts file
+    group.key1.save('John' as any);
+
+    group.load();
+
+    return group.key1.value;
+  });
+
+  //
+  //
+
+  expect(result1).toBe(1);
+});
+
+//
+//
+
+test('Must validate with schemas-lib when load', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
+
+  const result1 = await page.evaluate(() => {
+    const store1 = __storageItem('key1');
+    store1.save('John' as any); // Save a string, but the schema requires a number
+
+    //
+    //
+
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
+    });
+
+    // When load it will be parsed to 1
+    // because it is not a number
+    // the schema is in main.ts file
+    group.load();
+
+    return group.key1.value;
+  });
+
+  //
+  //
+
+  expect(result1).toBe(1);
+});
+
+//
+//
+
+test('Must load a wrong format localStorage item', async ({ page }) => {
+  await page.goto('http://localhost:5173/');
+
+  // Must set the signal factory before anything
+  await page.evaluate(() => {
+    __setSignalFactory(() => ({ value: null }));
+  });
+
+  const result1 = await page.evaluate(() => {
+    localStorage.setItem('key1', 'wrong format');
+
+    //
+    //
+
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
+    });
+
+    // When load it will be parsed to 1
+    // because it is not a number
+    // the schema is in main.ts file
+    group.load();
+
+    return group.key1.value;
+  });
+
+  //
+  //
+
+  expect(result1).toBe(null);
 });

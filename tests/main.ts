@@ -1,3 +1,4 @@
+import { int } from 'schemas-lib';
 import { storageItem, setSignalFactory, storageGroup } from '../src';
 import { getDiv } from './getDiv';
 
@@ -6,9 +7,12 @@ import { getDiv } from './getDiv';
 
 localStorage.clear();
 
+const schema = int.catch(1);
+
 (window as any).__setSignalFactory = setSignalFactory;
 (window as any).__storageGroup = storageGroup;
 (window as any).__storageItem = storageItem;
+(window as any).__schema = schema;
 
 //
 //

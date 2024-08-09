@@ -11,6 +11,9 @@ importers:
       '@playwright/test':
         specifier: ^1.46.0
         version: 1.46.0
+      schemas-lib:
+        specifier: ^1.0.0
+        version: 1.0.0
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -288,6 +291,9 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
+  schemas-lib@1.0.0:
+    resolution: {integrity: sha512-I3YKsudRBKusGTTY5e20gMrihtmbrJpQnUc89pMWGZR9LuMnS/mGz0N/MQNgOLt5T9aWirpH8HCESXabY+iVCw==}
+
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -524,6 +530,8 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.20.0
       '@rollup/rollup-win32-x64-msvc': 4.20.0
       fsevents: 2.3.3
+
+  schemas-lib@1.0.0: {}
 
   source-map-js@1.2.0: {}
 

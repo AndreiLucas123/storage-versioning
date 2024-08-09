@@ -47,6 +47,34 @@ group.person.save(data, new Date(Date.now() + 86400000));
 group.person.value = { name: 'John Doe', age: 30 }; // Não salva
 ```
 
+### Versionamento e validação
+
+Você pode controlar um item pela versão dele, ou por um schema como do [Zod](https://zod.dev/) ou [Yup](https://github.com/jquense/yup)
+
+```ts
+// Com versionamento por string ou number
+let group = storageGroup({
+  person1: storageItem<typeof data>('person1', 1),
+  person2: storageItem<typeof data>('person2', 'v3.0'),
+  user: storageItem<any>('user'), // Opcional, pode ser mudada depois
+});
+
+// Com lib como zod
+const schema = z
+  .object({
+    name: z.string(),
+  })
+  .catch({ name: 'Jhon' });
+
+let group = storageGroup({
+  person: storageItem<typeof data>('person', (data) => schema.parse(data)),
+});
+```
+
+A validação com a lib ocorrerá sempre que chamar `.save` ou `load`
+
+É recomendado usar recurso como `.catch` do zod para dados que possam vir incorretos
+
 ### Configurando reatividade (signals)
 
 Possui o método `setSignalFactory` para configurar o tipo de signal que será usado pela aplicação, podendo variar entre `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
