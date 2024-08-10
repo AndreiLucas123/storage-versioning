@@ -5,7 +5,7 @@
 ## Recursos
 
 - Sincronização automática do `localStorage` entre abas
-- Gerenciamento de versões de armazenamento local
+- Gerenciamento de versões de `localStorage` com versão ou `schemas` (como Zod)
 - Expiração da chave por tempo
 - Reatividade com frameworks como `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
 
@@ -14,7 +14,9 @@
 Você pode instalar o `storage-versioning` via npm:
 
 ```bash
-npm install storage-versioning
+npm i storage-versioning
+pnpm i storage-versioning
+yarn add storage-versioning
 ```
 
 ### Definindo grupo
@@ -158,7 +160,7 @@ if (!testing) {
 
 - **v**: Versão dos dados (string ou número).
 - **data**: Dados a serem armazenados.
-- **exp**: (Opcional) Data de expiração em milissegundos desde a época Unix.
+- **exp**: Data de expiração em milissegundos desde a época Unix.
   ```ts
   export type StorageVersioningJSON<T> = {
     data: T;
