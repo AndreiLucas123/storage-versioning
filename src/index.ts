@@ -29,6 +29,14 @@ export type StorageItem<T> = {
    * The current value of the storage
    */
   value: T | null;
+
+  /**
+   * Subscribe to the storage changes is the same method of the signal
+   *
+   * @param callback the callback to be called when the storage changes
+   * @returns a function to unsubscribe
+   */
+  subscribe: (callback: (value: T | null) => void) => () => void;
 };
 
 //
@@ -66,8 +74,9 @@ export type StorageGroupFunctions = {
 //
 //
 
-export type StorageSignal = {
-  value: any;
+export type StorageSignal<T = any> = {
+  value: T;
+  subscribe: (callback: (value: T) => void) => () => void;
 };
 
 //
@@ -264,6 +273,7 @@ export function storageItem<T>(
     get value() {
       return signal.value;
     },
+    subscribe: signal.subscribe.bind(signal),
   };
 }
 
@@ -302,5 +312,6 @@ export function storageItemTesting<T>(): StorageItem<T> {
     get value() {
       return signal.value;
     },
+    subscribe: signal.subscribe.bind(signal),
   };
 }

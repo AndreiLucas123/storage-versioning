@@ -82,13 +82,57 @@ A validação com a lib ocorrerá sempre que chamar `.save` ou `load`
 Possui o método `setSignalFactory` para configurar o tipo de signal que será usado pela aplicação, podendo variar entre `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
 
 ```ts
-// Vue
-setSignalFactory(ref);
-
-// Preact Signals
+//
+// Preact Signals: mais simples de todos, de onde a api foi inspirada
 setSignalFactory(signal);
 
-// Solid
+//
+// Vue: adiciona o método subscribe ao ref criado com watch
+setSignalFactory((initial) => {
+  const signal = ref(initial);
+
+  signal.subscribe = (cb: (newVal) => void) => {
+    cb(signal.value);
+    return watch(signal, cb);
+  };
+
+  return signal;
+});
+
+//
+// Svelte: você pode usar o factory abaixo
+
+const signal = <T>(initial: T) => {
+  const callbacks = new Set<(value: T) => void>();
+  let value = initial;
+
+  const subscribe = (callback: (value: T) => void) => {
+    callback(value);
+    callbacks.add(callback);
+    return () => {
+      callbacks.delete(callback);
+    };
+  };
+
+  return {
+    get value() {
+      return value;
+    },
+    set value(newValue) {
+      value = newValue;
+      for (const callback of callbacks) {
+        callback(value);
+      }
+    },
+    subscribe,
+  };
+};
+
+// Depois só definir setSignalFactory
+setSignalFactory(signal);
+
+//
+// Solid: cria um wrapper com createRoot e createEffect
 setSignalFactory((initial) => {
   const [value, setValue] = createSignal(initial);
 
@@ -99,29 +143,26 @@ setSignalFactory((initial) => {
     set value(newValue) {
       setValue(newValue);
     },
-  };
-});
 
-// Angular Signals
-setSignalFactory((initial) => {
-  const _signal = signal(initial);
-
-  return {
-    get value() {
-      return value();
-    },
-    set value(newValue) {
-      _signal.set(newValue);
+    subscribe(callback: (value) => void) {
+      let dispose;
+      createRoot((disposer) => {
+        dispose = disposer;
+        createEffect(() => callback(value()));
+      });
+      return dispose;
     },
   };
 });
 ```
 
-### Svelte e React
+### Angular signals
 
-Para ter reatividade pode-se usar algo como [Preact Signals in Svelte](https://svelte.dev/repl/3da10091dda341a6a7b9859450e20e9b?version=3.52.0)
+Você não pode usar com angular signals porque não é possível se subscrever a um signal como nos outros frameworks, para se inscrever precisa do `effect` que precisa do [`injector`](https://angular.dev/guide/signals#injection-context), como `setSignalFactory` não pode acessar o `injector` acaba não sendo possível usar **Angular Signals**
 
-E para o React [@preact/signals-react](https://www.npmjs.com/package/@preact/signals-react)
+### React
+
+React não tem suporte nativo para signals, porém é possível usar [@preact/signals-react](https://www.npmjs.com/package/@preact/signals-react)
 
 ### Acessando a reatividade
 
