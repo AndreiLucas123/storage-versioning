@@ -1,6 +1,7 @@
 import { int } from 'schemas-lib';
-import { storageItem, setSignalFactory, storageGroup } from '../src';
-import { getDiv } from './getDiv';
+import { storageItem, storageGroup } from '../src';
+import { setSignalFactory, Signal } from 'signal-factory';
+import { signal } from 'signal-factory/vanilla';
 
 //
 //
@@ -9,37 +10,45 @@ localStorage.clear();
 
 const schema = int.catch(1);
 
-(window as any).__setSignalFactory = setSignalFactory;
+setSignalFactory(signal);
+
 (window as any).__storageGroup = storageGroup;
 (window as any).__storageItem = storageItem;
 (window as any).__schema = schema;
+(window as any).__useDocumentTitle = useDocumentTitle;
 
 //
 //
 
-getDiv('div1', (display) => {
-  setSignalFactory(() => {
-    let value: any = null;
+export function useDocumentTitle(initial: string) {
+  setSignalFactory(documentTitleSignal);
+}
 
-    return {
-      get value() {
-        return value;
-      },
-      set value(newValue) {
-        value = newValue;
-        display(value);
-      },
+//
+//
+
+function documentTitleSignal(initial: string): Signal<string> {
+  const callbacks = new Set<(value: string) => void>();
+  document.title = initial + '';
+
+  const subscribe = (callback: (value: string) => void) => {
+    callback(document.title);
+    callbacks.add(callback);
+    return () => {
+      callbacks.delete(callback);
     };
-  });
+  };
 
-  //
-  //
-
-  const group = storageGroup({
-    key99: storageItem('key99', 1),
-  });
-  group.listen();
-
-  group.key99.save({ name: 'John', age: 30, rand: Math.random() });
-  group.load();
-});
+  return {
+    get value() {
+      return document.title;
+    },
+    set value(newValue) {
+      document.title = newValue;
+      for (const callback of callbacks) {
+        callback(document.title);
+      }
+    },
+    subscribe,
+  };
+}

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      signal-factory:
+        specifier: 1.0.0-next.0
+        version: 1.0.0-next.0
     devDependencies:
       '@playwright/test':
         specifier: ^1.46.0
@@ -294,6 +298,9 @@ packages:
   schemas-lib@1.0.0:
     resolution: {integrity: sha512-I3YKsudRBKusGTTY5e20gMrihtmbrJpQnUc89pMWGZR9LuMnS/mGz0N/MQNgOLt5T9aWirpH8HCESXabY+iVCw==}
 
+  signal-factory@1.0.0-next.0:
+    resolution: {integrity: sha512-3X0Bo4xie3MPODSDdnstQ/WFEypWOD6plOTSe+hb7WvIGKSEBpve29mOJCiftXRxxLs28MEqqodDm18pOJKe2A==}
+
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -532,6 +539,8 @@ snapshots:
       fsevents: 2.3.3
 
   schemas-lib@1.0.0: {}
+
+  signal-factory@1.0.0-next.0: {}
 
   source-map-js@1.2.0: {}
 

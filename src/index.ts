@@ -1,3 +1,5 @@
+import { signalFactory } from 'signal-factory';
+
 //
 //
 
@@ -70,28 +72,6 @@ export type StorageGroupFunctions = {
    */
   load: () => void;
 };
-
-//
-//
-
-export type StorageSignal<T = any> = {
-  value: T;
-  subscribe: (callback: (value: T) => void) => () => void;
-};
-
-//
-//
-
-let signalFactory: (initial: any) => StorageSignal = () => {
-  throw new Error('Signal factory not set');
-};
-
-//
-//
-
-export function setSignalFactory(factory: (initial: any) => StorageSignal) {
-  signalFactory = factory;
-}
 
 //
 //
@@ -181,7 +161,7 @@ export function storageItem<T>(
   version?: string | number | ((value: any) => T),
 ): StorageItem<T> {
   let timeout: any = null;
-  const signal = signalFactory(null);
+  const signal = signalFactory<T | null>(null);
 
   //
   //
@@ -283,7 +263,7 @@ export function storageItem<T>(
  * Does not expire the data neither access the localStorage
  */
 export function storageItemTesting<T>(): StorageItem<T> {
-  const signal = signalFactory(null);
+  const signal = signalFactory<T | null>(null);
 
   //
   //

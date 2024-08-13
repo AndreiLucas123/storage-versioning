@@ -1,13 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
-import { setSignalFactory, storageGroup, storageItem } from '../src';
+import { storageGroup, storageItem } from '../src';
 import { int, Schema } from 'schemas-lib';
+import { useDocumentTitle } from './main';
 
 //
 //
 
-declare const __setSignalFactory: typeof setSignalFactory;
 declare const __storageGroup: typeof storageGroup;
 declare const __storageItem: typeof storageItem;
+declare const __useDocumentTitle: typeof useDocumentTitle;
 declare const __schema: Schema<number | null | undefined>;
 
 //
@@ -28,11 +29,6 @@ test('Must show Data 1', async ({ page }) => {
 
 test('storageVersioning must save and load successfully', async ({ page }) => {
   await page.goto('http://localhost:5173/');
-
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
 
   //
   // Must start with null
@@ -72,11 +68,6 @@ test('storageVersioning must save and load successfully', async ({ page }) => {
 
 test('When change version, must return null', async ({ page }) => {
   await page.goto('http://localhost:5173/');
-
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
 
   //
   // Must save with version 1
@@ -128,11 +119,6 @@ test('When change version, must return null', async ({ page }) => {
 test('Must expirate', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
-
   //
   // Must start with null
 
@@ -167,31 +153,13 @@ test('Must expirate', async ({ page }) => {
 //
 //
 
-async function setDocumentTitleSignal(page: Page) {
-  await page.evaluate(() => {
-    __setSignalFactory(() => {
-      document.title = 'null';
-      return {
-        get value() {
-          return document.title;
-        },
-
-        set value(newValue) {
-          document.title = newValue;
-        },
-      };
-    });
-  });
-}
-
-//
-//
-
 test('Expiration must notify', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   // Set the signal to change the document title
-  await setDocumentTitleSignal(page);
+  await page.evaluate(() => {
+    __useDocumentTitle('null');
+  });
 
   //
   // Must start with null
@@ -226,7 +194,9 @@ test('Expiration must notify without save', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   // Set the signal to change the document title
-  await setDocumentTitleSignal(page);
+  await page.evaluate(() => {
+    __useDocumentTitle('null');
+  });
 
   //
   // Change the localStorage manually
@@ -271,11 +241,6 @@ test('Expiration must notify without save', async ({ page }) => {
 test('storageGroup must load all storages', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
-
   //
   // Must start with null
 
@@ -316,11 +281,6 @@ test('Must validate with schemas-lib when save', async ({ page }) => {
 
   await page.goto('http://localhost:5173/');
 
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
-
   const result1 = await page.evaluate(() => {
     const group = __storageGroup({
       key1: __storageItem('key1', (data) => __schema.parse(data)),
@@ -347,11 +307,6 @@ test('Must validate with schemas-lib when save', async ({ page }) => {
 
 test('Must validate with schemas-lib when load', async ({ page }) => {
   await page.goto('http://localhost:5173/');
-
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
 
   const result1 = await page.evaluate(() => {
     const store1 = __storageItem('key1');
@@ -383,11 +338,6 @@ test('Must validate with schemas-lib when load', async ({ page }) => {
 
 test('Must load a wrong format localStorage item', async ({ page }) => {
   await page.goto('http://localhost:5173/');
-
-  // Must set the signal factory before anything
-  await page.evaluate(() => {
-    __setSignalFactory(() => ({ value: null }));
-  });
 
   const result1 = await page.evaluate(() => {
     localStorage.setItem('key1', 'wrong format');
