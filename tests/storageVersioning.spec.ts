@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { storageGroup, storageItem } from '../src';
 import { int, Schema } from 'schemas-lib';
 import { useDocumentTitle } from './main';
