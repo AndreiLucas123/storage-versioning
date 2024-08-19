@@ -1,9 +1,9 @@
-import { signalFactory } from 'signal-factory';
+import { type ReadableSignal, signalFactory } from 'signal-factory';
 
 //
 //
 
-export type StorageItem<T> = {
+export interface StorageItem<T> extends ReadableSignal<T | null> {
   /**
    * Load the data from the localStorage
    *
@@ -30,7 +30,7 @@ export type StorageItem<T> = {
   /**
    * The current value of the storage
    */
-  value: T | null;
+  get: () => T | null;
 
   /**
    * Subscribe to the storage changes is the same method of the signal
@@ -39,7 +39,7 @@ export type StorageItem<T> = {
    * @returns a function to unsubscribe
    */
   subscribe: (callback: (value: T | null) => void) => () => void;
-};
+}
 
 //
 //
@@ -167,7 +167,7 @@ export function storageItem<T>(
   //
 
   function setValue(newValue: any) {
-    signal.value = newValue;
+    signal.set(newValue);
     return newValue;
   }
 
@@ -250,9 +250,7 @@ export function storageItem<T>(
   return {
     load,
     save,
-    get value() {
-      return signal.value;
-    },
+    get: signal.get.bind(signal),
     subscribe: signal.subscribe.bind(signal),
   };
 }
@@ -268,30 +266,23 @@ export function storageItemTesting<T>(): StorageItem<T> {
   //
   //
 
-  function load() {
-    return signal.value;
-  }
-
-  //
-  //
-
   function save(data: T | null) {
     if (data !== null && data !== undefined) {
-      signal.value = data;
+      signal.set(data);
     } else {
-      signal.value = null;
+      signal.set(null);
     }
   }
+
+  const get = signal.get.bind(signal);
 
   //
   //
 
   return {
-    load,
+    load: get,
     save,
-    get value() {
-      return signal.value;
-    },
+    get,
     subscribe: signal.subscribe.bind(signal),
   };
 }

@@ -256,8 +256,8 @@ test('storageGroup must load all storages', async ({ page }) => {
     group.load();
 
     return {
-      key1: group.key1.value,
-      key2: group.key2.value,
+      key1: group.key1.get(),
+      key2: group.key2.get(),
     };
   });
 
@@ -293,7 +293,7 @@ test('Must validate with schemas-lib when save', async ({ page }) => {
 
     group.load();
 
-    return group.key1.value;
+    return group.key1.get();
   });
 
   //
@@ -324,7 +324,7 @@ test('Must validate with schemas-lib when load', async ({ page }) => {
     // the schema is in main.ts file
     group.load();
 
-    return group.key1.value;
+    return group.key1.get();
   });
 
   //
@@ -354,7 +354,7 @@ test('Must load a wrong format localStorage item', async ({ page }) => {
     // the schema is in main.ts file
     group.load();
 
-    return group.key1.value;
+    return group.key1.get();
   });
 
   //

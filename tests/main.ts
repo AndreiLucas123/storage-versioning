@@ -1,6 +1,6 @@
 import { int } from 'schemas-lib';
 import { storageItem, storageGroup } from '../src';
-import { setSignalFactory, Signal } from 'signal-factory';
+import { setSignalFactory, WritableSignal } from 'signal-factory';
 import { atom } from 'signal-factory';
 
 //
@@ -27,7 +27,7 @@ export function useDocumentTitle(initial: string) {
 //
 //
 
-function documentTitleSignal(initial: string): Signal<string> {
+function documentTitleSignal(initial: string): WritableSignal<string> {
   const callbacks = new Set<(value: string) => void>();
   document.title = initial + '';
 
@@ -40,10 +40,10 @@ function documentTitleSignal(initial: string): Signal<string> {
   };
 
   return {
-    get value() {
+    get() {
       return document.title;
     },
-    set value(newValue) {
+    set(newValue) {
       document.title = newValue;
       for (const callback of callbacks) {
         callback(document.title);
