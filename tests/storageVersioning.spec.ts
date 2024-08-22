@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { storageGroup, storageItem } from '../src';
 import { int, Schema } from 'schemas-lib';
 import { useDocumentTitle } from './main';
+import { StorageVersioning } from '../src/StorageVersioning';
 
 //
 //
@@ -361,4 +362,31 @@ test('Must load a wrong format localStorage item', async ({ page }) => {
   //
 
   expect(result1).toBe(null);
+});
+
+//
+//
+
+test('When set to noLocalStorage must not access localStorage', () => {
+  const storage = new StorageVersioning(
+    {
+      key1: 1,
+    },
+    {
+      key1: 'Jhon',
+    },
+    true,
+  );
+
+  //
+  //
+
+  // Should not throw an error
+  storage.save('key1', 'Some value');
+
+  // Should not throw an error
+  expect(storage.load('key1')).toBe('Some value');
+
+  // Should not throw an error
+  storage.listen()()
 });
