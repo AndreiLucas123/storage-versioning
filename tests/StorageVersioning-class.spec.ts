@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { int, Schema } from 'schemas-lib';
-import { StorageVersioning } from '../src/StorageVersioning';
+import { StorageVersioning } from '../src/old-version/StorageVersioning';
 
 //
 //

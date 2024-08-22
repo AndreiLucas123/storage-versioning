@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { storageGroup, storageItem } from '../src/old-version/old-version';
 import { int, Schema } from 'schemas-lib';
 import { useDocumentTitle } from './main';
-import { StorageVersioning } from '../src/StorageVersioning';
+import { StorageVersioning } from '../src/old-version/StorageVersioning';
 
 //
 //

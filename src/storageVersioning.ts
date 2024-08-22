@@ -1,0 +1,206 @@
+import { StorageVersioningJSON } from '..';
+import { signalFactory } from 'signal-factory';
+import { StorageVersioning } from './types';
+
+//
+//
+
+export type StorageItems = {
+  [key: string]: any;
+};
+
+export type StorageVersions<T extends StorageItems> = {
+  [K in keyof T]: string | number | ((value: T[K]) => T[K]);
+};
+
+//
+//
+
+export function storageVersioning<T extends StorageItems>(
+  versioning: StorageVersions<T>,
+  initial: T = {} as any,
+  noLocalStorage = false,
+): StorageVersioning<T> {
+  const timeouts: Record<string, any> = {};
+  const internalStore = signalFactory(initial);
+
+  //
+  //
+
+  let load: <K extends keyof T>(key: K) => T[K] | null;
+  let save: <K extends keyof T>(key: K, data: T[K], exp?: Date) => void;
+  let listen: () => () => void;
+
+  //
+  //
+
+  if (noLocalStorage) {
+    //
+    //
+
+    save = (key, data): void => {
+      if (data !== null && data !== undefined) {
+        _setValue(key, data);
+      } else {
+        _setValue(key, data);
+      }
+    };
+
+    //
+    //
+
+    load = (key): any => {
+      return internalStore.get()[key];
+    };
+
+    //
+    //
+
+    listen = () => () => {};
+  } else {
+    //
+    //
+
+    save = (key, data, exp): void => {
+      clearTimeout(timeouts[key as string]);
+
+      //
+      //
+
+      if (data !== null && data !== undefined) {
+        const dataToSave: StorageVersioningJSON<T> = {
+          data,
+        };
+
+        //
+        const _versioning = versioning[key as string] as any;
+
+        if (_versioning) {
+          if (typeof _versioning === 'function') {
+            dataToSave.data = _versioning(data);
+          } else {
+            dataToSave.v = _versioning;
+          }
+        }
+
+        //
+
+        if (exp) {
+          dataToSave.exp = exp.getTime();
+          const now = new Date().getTime();
+          const diff = dataToSave.exp - now;
+
+          if (diff > 0) {
+            timeouts[key as string] = setTimeout(() => {
+              _setValue(key, null);
+            }, diff);
+          }
+        }
+
+        localStorage.setItem(key as string, JSON.stringify(dataToSave));
+        _setValue(key, data);
+      } else {
+        localStorage.removeItem(key as string);
+        _setValue(key, null);
+      }
+    };
+
+    //
+    //
+
+    load = (key): any => {
+      clearTimeout(timeouts[key as string]);
+
+      try {
+        const strItem = localStorage.getItem(key as string);
+        if (!strItem) return null;
+
+        //
+
+        const parsed: StorageVersioningJSON<T> = JSON.parse(strItem);
+
+        //
+
+        const _versioning = versioning[key as string] as any;
+
+        if (typeof versioning === 'function') {
+          parsed.data = _versioning(parsed.data);
+        } else {
+          if (parsed.v !== _versioning) {
+            return _setValue(key, null);
+          }
+        }
+
+        //
+
+        if (parsed.exp) {
+          const now = new Date().getTime();
+          const diff = parsed.exp - now;
+
+          //
+
+          if (diff > 0) {
+            timeouts[key as string] = setTimeout(() => {
+              _setValue(key, null);
+            }, diff);
+          } else {
+            return _setValue(key, null);
+          }
+        }
+
+        return _setValue(key, parsed.data as any);
+      } catch (error) {
+        console.error(
+          `[Error loading localStorage for ${key as string}]`,
+          error,
+        );
+      }
+
+      return _setValue(key, null);
+    };
+
+    //
+    //
+
+    listen = () => {
+      const onStorage = (event: StorageEvent) => {
+        if ((event.key as string) in versioning) {
+          load(event.key as any);
+        }
+      };
+
+      window.addEventListener('storage', onStorage);
+
+      return () => {
+        window.removeEventListener('storage', onStorage);
+      };
+    };
+  }
+
+  //
+  //
+
+  function _setValue<K extends keyof T>(
+    key: K,
+    data: T[K] | null,
+  ): T[K] | null {
+    // @ts-ignore
+    const value = internalStore.get();
+    if (value[key] === data) return data;
+
+    internalStore.set({ ...value, [key]: data });
+    return data;
+  }
+
+  //
+  //
+
+  return {
+    load,
+    save,
+    listen,
+    get: internalStore.get.bind(internalStore),
+    subscribe: internalStore.subscribe.bind(internalStore),
+    set: internalStore.set.bind(internalStore),
+  };
+}

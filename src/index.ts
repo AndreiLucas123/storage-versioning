@@ -1,4 +1,4 @@
-export { StorageVersioning } from './StorageVersioning';
+export { storageVersioning } from './storageVersioning';
 
 //
 //
