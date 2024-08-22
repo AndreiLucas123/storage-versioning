@@ -1,4 +1,5 @@
 import { type ReadableSignal, signalFactory } from 'signal-factory';
+import { Store } from 'signal-factory/store';
 
 //
 //

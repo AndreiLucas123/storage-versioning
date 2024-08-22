@@ -7,7 +7,7 @@
 - Sincronização automática do `localStorage` entre abas
 - Gerenciamento de versões de `localStorage` com versão ou `schemas` (como Zod)
 - Expiração da chave por tempo
-- Reatividade com frameworks como `Vue`, `Angular`, `SolidJS`, `PreactJS Signals`
+- Reatividade com frameworks como `Vue`, `Angular`, `SolidJS`, `PreactJS` usando o [signal-factory](https://github.com/Simple-Organization/signal-factory)
 
 ## Instalação
 
@@ -79,7 +79,7 @@ A validação com a lib ocorrerá sempre que chamar `.save` ou `load`
 
 ### Configurando reatividade (signals)
 
-Essa lib usa [signal-factory](https://github.com/Simple-Organization/signal-factory) para configurar a reatividade entre `React`, `Preact`. `Svelte`, `Vue`, `Solid`, entre outros recomendo que leia a [documentação do signal-factory](https://github.com/Simple-Organization/signal-factory)
+Essa lib usa [signal-factory](https://github.com/Simple-Organization/signal-factory) para configurar a reatividade entre `React`, `Preact`. `Svelte`, `Vue`, `Solid`
 
 ### Acessando a reatividade
 
