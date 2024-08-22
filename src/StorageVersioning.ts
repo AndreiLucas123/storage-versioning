@@ -9,7 +9,7 @@ export type StorageItems = {
 };
 
 export type StorageVersions<T extends StorageItems> = {
-  [key: string]: string | number | ((value: any) => T[keyof T]);
+  [K in keyof T]: string | number | ((value: T[K]) => T[K]);
 };
 
 //
