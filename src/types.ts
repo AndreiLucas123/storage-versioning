@@ -18,7 +18,7 @@ export type StorageVersions<T extends StorageItems> = {
 //
 
 export interface StorageVersioning<T extends StorageItems>
-  extends WritableSignal<T | null> {
+  extends WritableSignal<T> {
   /**
    * Load the data from the localStorage
    *

@@ -40,9 +40,9 @@ export function storageVersioning<T extends StorageItems>(
 
     save = (key, data): void => {
       if (data !== null && data !== undefined) {
-        _setValue(key, data);
+        setValue(key, data);
       } else {
-        _setValue(key, data);
+        setValue(key, data);
       }
     };
 
@@ -92,16 +92,16 @@ export function storageVersioning<T extends StorageItems>(
 
           if (diff > 0) {
             timeouts[key as string] = setTimeout(() => {
-              _setValue(key, null);
+              setValue(key, null);
             }, diff);
           }
         }
 
         localStorage.setItem(key as string, JSON.stringify(dataToSave));
-        _setValue(key, data);
+        setValue(key, data);
       } else {
         localStorage.removeItem(key as string);
-        _setValue(key, null);
+        setValue(key, null);
       }
     };
 
@@ -127,7 +127,7 @@ export function storageVersioning<T extends StorageItems>(
           parsed.data = _versioning(parsed.data);
         } else {
           if (parsed.v !== _versioning) {
-            return _setValue(key, null);
+            return setValue(key, null);
           }
         }
 
@@ -141,14 +141,14 @@ export function storageVersioning<T extends StorageItems>(
 
           if (diff > 0) {
             timeouts[key as string] = setTimeout(() => {
-              _setValue(key, null);
+              setValue(key, null);
             }, diff);
           } else {
-            return _setValue(key, null);
+            return setValue(key, null);
           }
         }
 
-        return _setValue(key, parsed.data as any);
+        return setValue(key, parsed.data as any);
       } catch (error) {
         console.error(
           `[Error loading localStorage for ${key as string}]`,
@@ -156,7 +156,7 @@ export function storageVersioning<T extends StorageItems>(
         );
       }
 
-      return _setValue(key, null);
+      return setValue(key, null);
     };
 
     //
@@ -180,11 +180,10 @@ export function storageVersioning<T extends StorageItems>(
   //
   //
 
-  function _setValue<K extends keyof T>(
+  function setValue<K extends keyof T>(
     key: K,
     data: T[K] | null,
   ): T[K] | null {
-    // @ts-ignore
     const value = internalStore.get();
     if (value[key] === data) return data;
 
