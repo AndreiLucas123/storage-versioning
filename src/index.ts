@@ -90,7 +90,7 @@ export function storageItem<T>(
   version?: string | number | ((value: any) => T),
 ): StorageItem<T> {
   let timeout: any = null;
-  const signal = signalFactory<T | null>(null);
+  const signal = signalFactory(null);
 
   //
   //
@@ -190,7 +190,7 @@ export function storageItem<T>(
  * Does not expire the data neither access the localStorage
  */
 export function storageItemTesting<T>(): StorageItem<T> {
-  const signal = signalFactory<T | null>(null);
+  const signal = signalFactory(null);
 
   //
   //

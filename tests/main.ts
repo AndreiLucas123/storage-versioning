@@ -1,7 +1,7 @@
 import { int } from 'schemas-lib';
 import { storageItem, storageGroup } from '../src';
 import { setSignalFactory, WritableSignal } from 'signal-factory';
-import { atom } from 'signal-factory';
+import { store } from 'signal-factory/store';
 
 //
 //
@@ -10,7 +10,7 @@ localStorage.clear();
 
 const schema = int.catch(1);
 
-setSignalFactory(atom);
+setSignalFactory(store);
 
 (window as any).__storageGroup = storageGroup;
 (window as any).__storageItem = storageItem;
