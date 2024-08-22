@@ -8,6 +8,10 @@ export type StorageItems = {
   [key: string]: any;
 };
 
+export type StorageVersions<T extends StorageItems> = {
+  [key: string]: string | number | ((value: any) => T[keyof T]);
+};
+
 //
 //
 
@@ -24,8 +28,8 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
    * @param noLocalStorage If true, the localStorage will not be used
    */
   constructor(
-    readonly initial: T,
-    readonly versioning?: string | number | ((value: any) => T),
+    readonly versioning: StorageVersions<T>,
+    initial: T = {} as any,
     noLocalStorage = false,
   ) {
     super(initial);
@@ -46,8 +50,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
       //
       // Rewrite the load method
       this.load = (key): any => {
-        // @ts-ignore
-        return this._value[key];
+        return this.get()[key];
       };
 
       //
@@ -79,10 +82,12 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
 
       //
 
-      if (typeof this.versioning === 'function') {
-        parsed.data = this.versioning(parsed.data);
+      const versioning = this.versioning[key as string] as any;
+
+      if (typeof versioning === 'function') {
+        parsed.data = versioning(parsed.data);
       } else {
-        if (parsed.v !== this.versioning) {
+        if (parsed.v !== versioning) {
           return this._setValue(key, null);
         }
       }
@@ -126,18 +131,22 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
   save<K extends keyof T>(key: K, data: T[K], exp?: Date): void {
     clearTimeout(this._timeouts[key as string]);
 
+    //
+    //
+
     if (data !== null && data !== undefined) {
       const dataToSave: StorageVersioningJSON<T> = {
         data,
       };
 
       //
+      const versioning = this.versioning[key as string] as any;
 
-      if (this.versioning) {
-        if (typeof this.versioning === 'function') {
-          dataToSave.data = this.versioning(data);
+      if (versioning) {
+        if (typeof versioning === 'function') {
+          dataToSave.data = versioning(data);
         } else {
-          dataToSave.v = this.versioning;
+          dataToSave.v = versioning;
         }
       }
 
@@ -171,7 +180,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
    */
   _setValue<K extends keyof T>(key: K, data: T[K] | null): T[K] | null {
     // @ts-ignore
-    const value = this._value;
+    const value = this.get();
     if (value[key] === data) return data;
 
     this.set({ ...value, [key]: data });
@@ -184,7 +193,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
    */
   listen(): () => void {
     const onStorage = (event: StorageEvent) => {
-      if ((event.key as string) in this.get()) {
+      if ((event.key as string) in this.versioning) {
         this.load(event.key as any);
       }
     };

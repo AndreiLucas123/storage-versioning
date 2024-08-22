@@ -2,6 +2,7 @@ import { int } from 'schemas-lib';
 import { storageItem, storageGroup } from '../src';
 import { setSignalFactory, WritableSignal } from 'signal-factory';
 import { store } from 'signal-factory/store';
+import { StorageVersioning } from '../src/StorageVersioning';
 
 //
 //
@@ -16,6 +17,7 @@ setSignalFactory(store);
 (window as any).__storageItem = storageItem;
 (window as any).__schema = schema;
 (window as any).__useDocumentTitle = useDocumentTitle;
+(window as any).__StorageVersioning = StorageVersioning;
 
 //
 //
