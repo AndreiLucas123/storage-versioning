@@ -1,3 +1,9 @@
+export type {
+  StorageVersioning,
+  StorageVersions,
+  StorageItems,
+} from './old-version/StorageVersioning';
+
 export { storageVersioning } from './storageVersioning';
 
 //

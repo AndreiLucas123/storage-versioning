@@ -1,17 +1,6 @@
 import { StorageVersioningJSON } from '..';
 import { signalFactory } from 'signal-factory';
-import { StorageVersioning } from './types';
-
-//
-//
-
-export type StorageItems = {
-  [key: string]: any;
-};
-
-export type StorageVersions<T extends StorageItems> = {
-  [K in keyof T]: string | number | ((value: T[K]) => T[K]);
-};
+import { StorageItems, StorageVersioning, StorageVersions } from './types';
 
 //
 //
