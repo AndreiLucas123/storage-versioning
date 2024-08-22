@@ -1,5 +1,5 @@
 import { int } from 'schemas-lib';
-import { storageItem, storageGroup } from '../src';
+import { storageItem, storageGroup } from '../src/old-version/old-version';
 import { setSignalFactory, WritableSignal } from 'signal-factory';
 import { store } from 'signal-factory/store';
 import { StorageVersioning } from '../src/StorageVersioning';

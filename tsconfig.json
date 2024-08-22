@@ -10,7 +10,8 @@
     "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "declaration": true
+    "declaration": true,
+    "stripInternal": true
   },
   "include": ["src", "tests"]
 }

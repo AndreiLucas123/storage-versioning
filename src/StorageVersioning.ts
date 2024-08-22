@@ -1,5 +1,5 @@
 import { Store } from 'signal-factory/store';
-import { StorageVersioningJSON } from './types';
+import { StorageVersioningJSON } from '.';
 
 //
 //
@@ -19,7 +19,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
   /**
    * @internal
    */
-  _timeouts: Record<string, any> = {};
+  timeouts: Record<string, any> = {};
 
   /**
    * Create a versioned storage
@@ -70,7 +70,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
    * @returns the data related to that key or null
    */
   load<K extends keyof T>(key: K): T[K] | null {
-    clearTimeout(this._timeouts[key as string]);
+    clearTimeout(this.timeouts[key as string]);
 
     try {
       const strItem = localStorage.getItem(key as string);
@@ -101,7 +101,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
         //
 
         if (diff > 0) {
-          this._timeouts[key as string] = setTimeout(() => {
+          this.timeouts[key as string] = setTimeout(() => {
             this._setValue(key, null);
           }, diff);
         } else {
@@ -129,7 +129,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
    * @param exp the expiration date
    */
   save<K extends keyof T>(key: K, data: T[K], exp?: Date): void {
-    clearTimeout(this._timeouts[key as string]);
+    clearTimeout(this.timeouts[key as string]);
 
     //
     //
@@ -158,7 +158,7 @@ export class StorageVersioning<T extends StorageItems> extends Store<T> {
         const diff = dataToSave.exp - now;
 
         if (diff > 0) {
-          this._timeouts[key as string] = setTimeout(() => {
+          this.timeouts[key as string] = setTimeout(() => {
             this._setValue(key, null);
           }, diff);
         }
