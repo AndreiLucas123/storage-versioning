@@ -1,24 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { storageGroup, storageItem } from '../../src/old-version/old-version';
 import { int, Schema } from 'schemas-lib';
-import { StorageVersioning } from '../src/old-version/StorageVersioning';
+import { useDocumentTitle } from '../main';
+import { StorageVersioning } from '../../src/old-version/StorageVersioning';
 
 //
 //
 
+declare const __storageGroup: typeof storageGroup;
+declare const __storageItem: typeof storageItem;
+declare const __useDocumentTitle: typeof useDocumentTitle;
 declare const __schema: Schema<number | null | undefined>;
-declare const __StorageVersioning: typeof StorageVersioning;
-
-//
-//
-
-type StorageItems1 = {
-  key1: string | null | Record<string, string>;
-};
-
-type StorageItems2 = {
-  key1: string | null | Record<string, string>;
-  key2: string | null | Record<string, string>;
-};
 
 //
 //
@@ -36,18 +28,15 @@ test('Must show Data 1', async ({ page }) => {
 //
 //
 
-test('StorageVersioning must save and load successfully', async ({ page }) => {
+test('storageVersioning must save and load successfully', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   //
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result1).toEqual(null);
@@ -56,13 +45,10 @@ test('StorageVersioning must save and load successfully', async ({ page }) => {
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
+    const storage = __storageItem('key1', 1);
+    storage.save({ name: 'John' });
 
-    storage.save('key1', { name: 'John' });
-
-    return storage.load('key1');
+    return storage.load();
   });
 
   expect(result2).toEqual({ name: 'John' });
@@ -71,11 +57,8 @@ test('StorageVersioning must save and load successfully', async ({ page }) => {
   // Will only load, must be the same
 
   const result3 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result3).toEqual({ name: 'John' });
@@ -91,13 +74,10 @@ test('When change version, must return null', async ({ page }) => {
   // Must save with version 1
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
+    const storage = __storageItem('key1', 1);
+    storage.save({ name: 'John' });
 
-    storage.save('key1', { name: 'John' });
-
-    return storage.load('key1');
+    return storage.load();
   });
 
   expect(result1).toEqual({ name: 'John' });
@@ -106,11 +86,8 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John with the same version
 
   const result2 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result2).toEqual({ name: 'John' });
@@ -119,11 +96,9 @@ test('When change version, must return null', async ({ page }) => {
   // Must return null if the version is different
 
   const result3 = await page.evaluate(() => {
-    const storage = new __StorageVersioning({
-      key1: 2,
-    });
+    const storage = __storageItem('key1', 2);
 
-    return storage.load('key1');
+    return storage.load();
   });
 
   expect(result3).toEqual(null);
@@ -132,11 +107,8 @@ test('When change version, must return null', async ({ page }) => {
   // Must return John if back to the same version
 
   const result4 = await page.evaluate(() => {
-    const storage = new __StorageVersioning({
-      key1: 1,
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result4).toEqual({ name: 'John' });
@@ -152,33 +124,28 @@ test('Must expirate', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning({
-      key1: 1,
-    });
+    const storage = __storageItem('key1', 1);
 
     const exp = new Date();
-    exp.setMilliseconds(exp.getMilliseconds() + 100);
+    exp.setSeconds(exp.getSeconds() + 1);
 
-    storage.save('key1', { name: 'John' }, exp);
+    storage.save({ name: 'John' }, exp);
 
-    return storage.load('key1');
+    return storage.load();
   });
 
   expect(result1).toEqual({ name: 'John' });
 
   //
   // Wait 1.2 seconds
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(1200);
 
   //
   // Will save, and when load must be the same
 
   const result2 = await page.evaluate(() => {
-    const storage = new __StorageVersioning({
-      key1: 1,
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result2).toEqual(null);
@@ -190,38 +157,30 @@ test('Must expirate', async ({ page }) => {
 test('Expiration must notify', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
+  // Set the signal to change the document title
+  await page.evaluate(() => {
+    __useDocumentTitle('null');
+  });
+
   //
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
+    const storage = __storageItem('key1', 1);
 
     const exp = new Date();
-    exp.setMilliseconds(exp.getMilliseconds() + 100);
+    exp.setSeconds(exp.getSeconds() + 1);
 
-    storage.save('key1', 'Jhon', exp);
+    storage.save('Jhon', exp);
 
-    let initial = true;
-    const unsub = storage.subscribe((values) => {
-      if (initial) {
-        initial = false;
-        return;
-      }
-
-      document.title = values.key1 + '';
-      unsub();
-    });
-
-    return storage.load('key1');
+    return storage.load();
   });
 
   expect(result1).toEqual('Jhon');
 
   //
   // Wait 1.2 seconds
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(1200);
 
   //
   // Will save, and when load must be the same
@@ -235,12 +194,17 @@ test('Expiration must notify', async ({ page }) => {
 test('Expiration must notify without save', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
+  // Set the signal to change the document title
+  await page.evaluate(() => {
+    __useDocumentTitle('null');
+  });
+
   //
   // Change the localStorage manually
 
   await page.evaluate(() => {
     const exp = new Date();
-    exp.setMilliseconds(exp.getMilliseconds() + 100);
+    exp.setSeconds(exp.getSeconds() + 1);
 
     localStorage.setItem(
       'key1',
@@ -256,28 +220,15 @@ test('Expiration must notify without save', async ({ page }) => {
   // Must expirate and notify without calling save method
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
-
-    let initial = true;
-    storage.subscribe((values) => {
-      if (initial) {
-        initial = false;
-        return;
-      }
-
-      document.title = values.key1 + '';
-    });
-
-    return storage.load('key1');
+    const storage = __storageItem('key1', 1);
+    return storage.load();
   });
 
   expect(result1).toEqual('Jhon');
 
   //
   // Wait 1.2 seconds
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(1200);
 
   //
   // Will save, and when load must be the same
@@ -295,15 +246,20 @@ test('storageGroup must load all storages', async ({ page }) => {
   // Must start with null
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems2>({
-      key1: 1,
-      key2: 2,
+    const group = __storageGroup({
+      key1: __storageItem('key1', 1),
+      key2: __storageItem('key2', 1),
     });
 
-    storage.save('key1', 'John');
-    storage.save('key2', 'Doe');
+    group.key1.save('John');
+    group.key2.save('Doe');
 
-    return storage.get();
+    group.load();
+
+    return {
+      key1: group.key1.get(),
+      key2: group.key2.get(),
+    };
   });
 
   expect(result1).toEqual({
@@ -327,18 +283,18 @@ test('Must validate with schemas-lib when save', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: (data) => __schema.parse(data) as any as string,
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
     });
 
     // When save it will be parsed to 1
     // because it is not a number
     // the schema is in main.ts file
-    storage.save('key1', 'John' as any);
+    group.key1.save('John' as any);
 
-    storage.load('key1');
+    group.load();
 
-    return storage.get().key1;
+    return group.key1.get();
   });
 
   //
@@ -354,24 +310,22 @@ test('Must validate with schemas-lib when load', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   const result1 = await page.evaluate(() => {
-    const storage = new __StorageVersioning<StorageItems1>({
-      key1: 1,
-    });
-    storage.save('key1', 'John' as any); // Save a string, but the schema requires a number
+    const store1 = __storageItem('key1');
+    store1.save('John' as any); // Save a string, but the schema requires a number
 
     //
     //
 
-    const storage2 = new __StorageVersioning<StorageItems1>({
-      key1: (data) => __schema.parse(data) as any as string,
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
     });
 
     // When load it will be parsed to 1
     // because it is not a number
     // the schema is in main.ts file
-    storage2.load('key1');
+    group.load();
 
-    return storage2.get().key1;
+    return group.key1.get();
   });
 
   //
@@ -392,20 +346,47 @@ test('Must load a wrong format localStorage item', async ({ page }) => {
     //
     //
 
-    const storage2 = new __StorageVersioning<StorageItems1>({
-      key1: (data) => __schema.parse(data) as any as string,
+    const group = __storageGroup({
+      key1: __storageItem('key1', (data) => __schema.parse(data)),
     });
 
     // When load it will be parsed to 1
     // because it is not a number
     // the schema is in main.ts file
-    storage2.load('key1');
+    group.load();
 
-    return storage2.get().key1;
+    return group.key1.get();
   });
 
   //
   //
 
   expect(result1).toBe(null);
+});
+
+//
+//
+
+test('When set to noLocalStorage must not access localStorage', () => {
+  const storage = new StorageVersioning(
+    {
+      key1: 1,
+    },
+    {
+      key1: 'Jhon',
+    },
+    true,
+  );
+
+  //
+  //
+
+  // Should not throw an error
+  storage.save('key1', 'Some value');
+
+  // Should not throw an error
+  expect(storage.load('key1')).toBe('Some value');
+
+  // Should not throw an error
+  storage.listen()()
 });
