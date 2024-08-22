@@ -123,7 +123,7 @@ export function storageVersioning<T extends StorageItems>(
 
         const _versioning = versioning[key as string] as any;
 
-        if (typeof versioning === 'function') {
+        if (typeof _versioning === 'function') {
           parsed.data = _versioning(parsed.data);
         } else {
           if (parsed.v !== _versioning) {
@@ -180,10 +180,7 @@ export function storageVersioning<T extends StorageItems>(
   //
   //
 
-  function setValue<K extends keyof T>(
-    key: K,
-    data: T[K] | null,
-  ): T[K] | null {
+  function setValue<K extends keyof T>(key: K, data: T[K] | null): T[K] | null {
     const value = internalStore.get();
     if (value[key] === data) return data;
 

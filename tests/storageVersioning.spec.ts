@@ -355,7 +355,7 @@ test('Must validate with schemas-lib when load', async ({ page }) => {
 
   const result1 = await page.evaluate(() => {
     const storage = __currentStorageVersioning<StorageItems1>({
-      key1: 1,
+      key1: 33,
     });
     storage.save('key1', 'John' as any); // Save a string, but the schema requires a number
 
