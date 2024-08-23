@@ -1,7 +1,7 @@
 {
   "name": "storage-versioning",
   "main": "dist/index.js",
-  "version": "4.0.0-next.5",
+  "version": "4.0.0-next.6",
   "scripts": {
     "build": "tsc && rollup -c && node esbuild.mjs",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
