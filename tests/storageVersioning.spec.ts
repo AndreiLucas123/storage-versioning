@@ -387,6 +387,33 @@ test('Must load a wrong format localStorage item', async ({ page }) => {
   await page.goto('http://localhost:5173/');
 
   const result1 = await page.evaluate(() => {
+    const storage = __currentStorageVersioning<StorageItems1>({
+      key1: 33,
+    });
+    storage.save('key1', 'John' as any); // Save a string, but the schema requires a number
+
+    localStorage.removeItem('key1');
+
+    storage.load('key1');
+
+    return storage.get('key1');
+  });
+
+  //
+  //
+
+  expect(result1).toBe(null);
+});
+
+//
+//
+
+test('When localStorage is null, it must return null when load', async ({
+  page,
+}) => {
+  await page.goto('http://localhost:5173/');
+
+  const result1 = await page.evaluate(() => {
     localStorage.setItem('key1', 'wrong format');
 
     //

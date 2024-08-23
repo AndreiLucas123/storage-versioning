@@ -102,7 +102,7 @@ export function storageVersioning<T extends StorageItems>(
 
       try {
         const strItem = localStorage.getItem(key as string);
-        if (!strItem) return null;
+        if (!strItem) return setValue(key, null);
 
         //
 

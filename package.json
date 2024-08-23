@@ -26,7 +26,8 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist/index.js",
+    "dist/index.d.ts"
   ],
   "types": "dist/index.d.ts",
   "packageManager": "pnpm@9.6.0",
