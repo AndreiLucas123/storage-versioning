@@ -197,7 +197,7 @@ export function storageVersioning<T extends StorageItems>(
     load,
     save,
     listen,
-    get(key?: keyof T): T[keyof T] | T {
+    get(key?: string): any {
       if (key) return internalStore.get()[key];
       return internalStore.get();
     },

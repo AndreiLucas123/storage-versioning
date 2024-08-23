@@ -41,7 +41,7 @@ export interface StorageVersioning<T extends StorageItems>
    *
    * @param key the key to get
    */
-  get(key: string): any;
+  get<K extends keyof T>(key: K): T[K] | null;
 
   /**
    * Save the data to the localStorage
