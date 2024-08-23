@@ -1,4 +1,4 @@
-import { ReadableSignal, WritableSignal } from 'signal-factory';
+import type { WritableSignal } from 'signal-factory';
 
 //
 //
@@ -49,4 +49,9 @@ export interface StorageVersioning<T extends StorageItems>
    * @returns a function to remove the event listener
    */
   listen(): () => void;
+
+  /**
+   * Load all the data from the localStorage
+   */
+  loadAll(): T;
 }

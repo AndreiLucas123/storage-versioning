@@ -180,6 +180,19 @@ export function storageVersioning<T extends StorageItems>(
   //
   //
 
+  function loadAll(): T {
+    const keys = Object.keys(versioning) as Array<keyof T>;
+
+    for (const key of keys) {
+      load(key);
+    }
+
+    return internalStore.get();
+  }
+
+  //
+  //
+
   return {
     load,
     save,
@@ -187,5 +200,6 @@ export function storageVersioning<T extends StorageItems>(
     get: internalStore.get.bind(internalStore),
     subscribe: internalStore.subscribe.bind(internalStore),
     set: internalStore.set.bind(internalStore),
+    loadAll,
   };
 }
