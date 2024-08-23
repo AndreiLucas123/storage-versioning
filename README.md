@@ -19,34 +19,52 @@ pnpm i storage-versioning
 yarn add storage-versioning
 ```
 
-### Definindo grupo
+### Definindo storageVersioning
 
 ```ts
-const group = storageGroup({
-  person: storageItem<typeof data>('person', 1),
-  user: storageItem<any>('user'), // Versão é opcional
-});
+export type Items = {
+  user: LoggedUser;
+  person: PersonObject;
+};
+
+const storage = storageVersioning<Items>(
+  {
+    user: 1, // Versão guardada
+    person: (data) => doSomeValidation(data),
+  },
+  { ...initialValues }, // Argumento opcional para précarregar valores
+  noLocalStorage, // Para testes ou SSR, torna métodos load, save e listen em noops
+);
+
+const unsubscribe = storage.listen(); // passa a ouvir o evento window.addEventListener('storage')
 ```
 
 ### Lendo dados
 
 ```ts
-// Carrega todos os dados do grupo
-group.load();
+// Carrega todos os dados do grupo do localStorage
+storage.loadAll();
 
 // Você pode chamar individualmente também
-group.person.load();
+storage.load('user');
+
+// Retorna todos os itens
+storage.get();
+
+// Retorna um item
+storage.get('user');
 ```
 
 ### Salvando dados
 
 ```ts
-group.person.save({ name: 'John Doe', age: 30 });
+storage.save('user', { name: 'John Doe', age: 30 });
 
 // Salvando dados com expiração de 1 dia
-group.person.save(data, new Date(Date.now() + 86400000));
+storage.save('user', data, new Date(Date.now() + 86400000));
 
-group.person.value = { name: 'John Doe', age: 30 }; // Não salva
+// Atualiza a reatividade, mas não salva no localStorage
+storage.set({ name: 'John Doe', age: 30 });
 ```
 
 ### Versionamento e validação
@@ -55,10 +73,9 @@ Você pode controlar um item pela versão dele, ou por um schema como do [Zod](h
 
 ```ts
 // Com versionamento por string ou number
-let group = storageGroup({
-  person1: storageItem<typeof data>('person1', 1),
-  person2: storageItem<typeof data>('person2', 'v3.0'),
-  user: storageItem<any>('user'), // Opcional, pode ser mudada depois
+const storage = storageVersioning<Items>({
+  user: 1,
+  person: 'v3.0',
 });
 
 // Com lib como zod
@@ -68,8 +85,8 @@ const schema = z
   })
   .catch({ name: 'Jhon' });
 
-let group = storageGroup({
-  person: storageItem<typeof data>('person', (data) => schema.parse(data)),
+const storage = storageVersioning<Items>({
+  person: (data) => schema.parse(data),
 });
 ```
 
@@ -81,37 +98,6 @@ A validação com a lib ocorrerá sempre que chamar `.save` ou `load`
 
 Essa lib usa [signal-factory](https://github.com/Simple-Organization/signal-factory) para configurar a reatividade entre `React`, `Preact`. `Svelte`, `Vue`, `Solid`
 
-### Acessando a reatividade
-
-```ts
-// Só chamar .value
-group.person.value;
-```
-
-### Testing
-
-Para ambientes de testes automatizados, o recomendado é usar o `storageItemTesting`, a api é a mesma que o `storageItem`, porém ele não acessa o `localStorage` e também os dados não expiram, tendo maior performance nas execuções dos testes
-
-```ts
-let group = storageGroup({
-  person: storageItem<typeof data>('person', 1),
-  user: storageItem<any>('user'),
-});
-
-// Sobreescreve para testes
-if (testing) {
-  group = storageGroup({
-    person: storageItemTesting<typeof data>('person', 1),
-    user: storageItemTesting<any>('user'),
-  });
-}
-
-// Só adiciona o window.addEventListener('storage') se não está em testes
-if (!testing) {
-  group.listen();
-}
-```
-
 ---
 
 ### Tipo JSON salvo
@@ -119,10 +105,11 @@ if (!testing) {
 - **v**: Versão dos dados (string ou número).
 - **data**: Dados a serem armazenados.
 - **exp**: Data de expiração em milissegundos desde a época Unix.
-  ```ts
-  export type StorageVersioningJSON<T> = {
-    data: T;
-    v?: string | number;
-    exp?: number;
-  };
-  ```
+
+```ts
+export type StorageVersioningJSON<T> = {
+  data: T;
+  v?: string | number;
+  exp?: number;
+};
+```
