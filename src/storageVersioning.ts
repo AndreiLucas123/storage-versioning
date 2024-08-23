@@ -197,7 +197,10 @@ export function storageVersioning<T extends StorageItems>(
     load,
     save,
     listen,
-    get: internalStore.get.bind(internalStore),
+    get(key?: keyof T): T[keyof T] | T {
+      if (key) return internalStore.get()[key];
+      return internalStore.get();
+    },
     subscribe: internalStore.subscribe.bind(internalStore),
     set: internalStore.set.bind(internalStore),
     loadAll,

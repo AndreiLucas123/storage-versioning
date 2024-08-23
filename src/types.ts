@@ -32,6 +32,18 @@ export interface StorageVersioning<T extends StorageItems>
   load<K extends keyof T>(key: K): T[K] | null;
 
   /**
+   * Get the data from the localStorage
+   */
+  get(): T;
+
+  /**
+   * Get specific data from the localStorage
+   *
+   * @param key the key to get
+   */
+  get(key: string): any;
+
+  /**
    * Save the data to the localStorage
    *
    * If the expiration date is set, the data will be removed after the expiration date
