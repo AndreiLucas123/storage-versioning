@@ -1,5 +1,5 @@
 import { StorageVersioningJSON } from '..';
-import { signalFactory } from 'signal-factory';
+import { Store } from 'signal-factory/store';
 import { StorageItems, StorageVersioning, StorageVersions } from './types';
 
 //
@@ -11,7 +11,7 @@ export function storageVersioning<T extends StorageItems>(
   noLocalStorage = false,
 ): StorageVersioning<T> {
   const timeouts: Record<string, any> = {};
-  const internalStore = signalFactory(initial);
+  const internalStore = new Store(initial);
 
   //
   //
