@@ -9,7 +9,7 @@ import { Store } from 'simorg-store';
 
 localStorage.clear();
 
-const schema = int.catch(1);
+const schema = int().catch(1);
 
 (window as any).__storageGroup = storageGroup;
 (window as any).__storageItem = storageItem;

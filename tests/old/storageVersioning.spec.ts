@@ -278,7 +278,7 @@ test('storageGroup must load all storages', async ({ page }) => {
 //
 
 test('Must validate with schemas-lib when save', async ({ page }) => {
-  const schema = int.catch(1);
+  const schema = int().catch(1);
 
   expect(schema.parse(1)).toBe(1);
   expect(schema.parse('asdasfasdas')).toBe(1);
