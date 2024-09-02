@@ -5,5 +5,5 @@ await esbuild.build({
   bundle: true,
   outdir: 'dist',
   format: 'esm',
-  external: ['signal-factory', 'signal-factory/*'],
+  external: ['simorg-store'],
 });
