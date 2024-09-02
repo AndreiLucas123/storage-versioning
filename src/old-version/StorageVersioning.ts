@@ -1,5 +1,5 @@
-import { Store } from 'signal-factory/store';
-import { StorageVersioningJSON } from '..';
+import type { StorageVersioningJSON } from '..';
+import { Store } from 'simorg-store';
 
 //
 //

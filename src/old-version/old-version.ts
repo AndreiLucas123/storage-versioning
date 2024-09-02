@@ -1,6 +1,10 @@
-import { signalFactory } from 'signal-factory';
-import { Store } from 'signal-factory/store';
-import { StorageGroup, StorageGroupFunctions, StorageItem, StorageVersioningJSON } from './old-types';
+import { Store } from 'simorg-store';
+import type {
+  StorageGroup,
+  StorageGroupFunctions,
+  StorageItem,
+  StorageVersioningJSON,
+} from './old-types';
 
 //
 //
@@ -90,7 +94,7 @@ export function storageItem<T>(
   version?: string | number | ((value: any) => T),
 ): StorageItem<T> {
   let timeout: any = null;
-  const signal = signalFactory(null);
+  const signal = new Store(null);
 
   //
   //
@@ -190,14 +194,14 @@ export function storageItem<T>(
  * Does not expire the data neither access the localStorage
  */
 export function storageItemTesting<T>(): StorageItem<T> {
-  const signal = signalFactory(null);
+  const signal = new Store(null);
 
   //
   //
 
   function save(data: T | null) {
     if (data !== null && data !== undefined) {
-      signal.set(data);
+      signal.set(data as any);
     } else {
       signal.set(null);
     }

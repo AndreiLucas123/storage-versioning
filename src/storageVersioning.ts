@@ -1,6 +1,6 @@
-import { StorageVersioningJSON } from '..';
-import { Store } from 'signal-factory/store';
-import { StorageItems, StorageVersioning, StorageVersions } from './types';
+import type { StorageVersioningJSON } from '..';
+import type { StorageItems, StorageVersioning, StorageVersions } from './types';
+import { Store } from 'simorg-store';
 
 //
 //

@@ -1,4 +1,4 @@
-import type { WritableSignal } from 'signal-factory';
+import type { WritableSignal } from 'simorg-store';
 
 //
 //

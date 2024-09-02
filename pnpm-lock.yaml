@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      signal-factory:
-        specifier: 1.0.0-next.6
-        version: 1.0.0-next.6
+      simorg-store:
+        specifier: 1.0.0-next.0
+        version: 1.0.0-next.0
     devDependencies:
       '@playwright/test':
         specifier: ^1.46.1
@@ -514,8 +514,8 @@ packages:
   schemas-lib@2.0.0:
     resolution: {integrity: sha512-K14sYiAFJ1rThGiobEsv4DSxBlX8ijtqpOfpulh5kO/IY9fsxMSGDYJ+fADuv8vLsiX52KnrSiJsrTz1UakRqA==}
 
-  signal-factory@1.0.0-next.6:
-    resolution: {integrity: sha512-cT5FbFQ4ZO39T6CgEBVaKOXBLXElzGDWc8u3+wvs48effGdTB5CTqZ8MbvLN8tmKRvo/i78P4Apt3KCgB5AbwQ==}
+  simorg-store@1.0.0-next.0:
+    resolution: {integrity: sha512-p6jWSaN0acI2ZJd/gH9PB6lGeDTVC6HUJF+k4bd1/plPtBwNg3tqkpOGts1n8JwyQWZOAokFlzVmcy02UWYh6g==}
 
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
@@ -921,7 +921,7 @@ snapshots:
 
   schemas-lib@2.0.0: {}
 
-  signal-factory@1.0.0-next.6: {}
+  simorg-store@1.0.0-next.0: {}
 
   source-map-js@1.2.0: {}
 

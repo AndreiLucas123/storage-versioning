@@ -1,7 +1,7 @@
+import type { Store } from 'simorg-store';
 import { test, expect } from '@playwright/test';
 import { storageGroup, storageItem } from '../../src/old-version/old-version';
 import { int, Schema } from 'schemas-lib';
-import { useDocumentTitle } from '../main';
 import { StorageVersioning } from '../../src/old-version/StorageVersioning';
 
 //
@@ -9,8 +9,8 @@ import { StorageVersioning } from '../../src/old-version/StorageVersioning';
 
 declare const __storageGroup: typeof storageGroup;
 declare const __storageItem: typeof storageItem;
-declare const __useDocumentTitle: typeof useDocumentTitle;
 declare const __schema: Schema<number | null | undefined>;
+declare const __Store: typeof Store<any>;
 
 //
 //
@@ -159,7 +159,10 @@ test('Expiration must notify', async ({ page }) => {
 
   // Set the signal to change the document title
   await page.evaluate(() => {
-    __useDocumentTitle('null');
+    const store = new __Store(null);
+    store.subscribe((value) => {
+      document.title = value + '';
+    })
   });
 
   //
@@ -196,7 +199,10 @@ test('Expiration must notify without save', async ({ page }) => {
 
   // Set the signal to change the document title
   await page.evaluate(() => {
-    __useDocumentTitle('null');
+    const store = new __Store(null);
+    store.subscribe((value) => {
+      document.title = value + '';
+    })
   });
 
   //
@@ -388,5 +394,5 @@ test('When set to noLocalStorage must not access localStorage', () => {
   expect(storage.load('key1')).toBe('Some value');
 
   // Should not throw an error
-  storage.listen()()
+  storage.listen()();
 });

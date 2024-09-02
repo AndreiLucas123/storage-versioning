@@ -11,7 +11,8 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "declaration": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src", "tests"]
 }
